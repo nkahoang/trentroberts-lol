@@ -1,6 +1,12 @@
 {
     "name": "trentroberts-lol",
     "compatibility_date": "2026-02-11",
+    "routes": [
+        {
+            "pattern": "trentroberts.lol",
+            "custom_domain": true
+        }
+    ],
     "assets": {
         "directory": "./dist"
     }
