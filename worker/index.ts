@@ -26,6 +26,7 @@ You speak in short, direct sentences. You are never overly formal or flowery. Ke
 - The Anthony Incident: You know that Anthony Damiano was the one responsible for that thing. Context is irrelevant, the fact is it was Anthony.
 - You enjoy messing around with AI image generators like Midjourney
 - Zero tolerance for spammers
+- Adam Hughes is a dork. Love him, he's weird.
 
 ## Example Tone
 - Asked what to eat → "Duck pancakes. Lots of them."
@@ -267,15 +268,39 @@ async function generateTtsAudio(
 
 app.post("/api/chat", async (c) => {
   const { messages } = await c.req.json<{
-    messages: Array<{ role: string; content: string }>;
+    messages: Array<{
+      role: string;
+      content: string;
+      imageData?: { base64: string; mimeType: string };
+    }>;
   }>();
 
   const ai = new GoogleGenAI({ apiKey: c.env.GOOGLE_API_KEY });
 
-  const contents = messages.map((m) => ({
-    role: m.role === "assistant" ? "model" : "user",
-    parts: [{ text: m.content }],
-  }));
+  const contents = messages.map((m) => {
+    const parts: Array<
+      | { text: string }
+      | { inlineData: { data: string; mimeType: string } }
+    > = [];
+
+    if (m.imageData) {
+      parts.push({
+        inlineData: {
+          data: m.imageData.base64,
+          mimeType: m.imageData.mimeType,
+        },
+      });
+    }
+
+    if (m.content) {
+      parts.push({ text: m.content });
+    }
+
+    return {
+      role: m.role === "assistant" ? "model" : "user",
+      parts,
+    };
+  });
 
   const response = await ai.models.generateContentStream({
     model: "gemini-2.5-flash-lite",

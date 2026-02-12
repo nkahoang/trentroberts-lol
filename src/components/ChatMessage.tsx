@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useMemo } from "react";
 import type { ChatMessage as ChatMessageType } from "../types";
 
 interface Props {
@@ -7,6 +7,14 @@ interface Props {
 
 export function ChatMessage({ message }: Props) {
   const audioRef = useRef<HTMLAudioElement>(null);
+
+  // Create a data URL for user-uploaded images
+  const imageUrl = useMemo(() => {
+    if (message.imageData) {
+      return `data:${message.imageData.mimeType};base64,${message.imageData.base64}`;
+    }
+    return null;
+  }, [message.imageData]);
 
   // Auto-play when audio arrives
   useEffect(() => {
@@ -20,6 +28,13 @@ export function ChatMessage({ message }: Props) {
   return (
     <div className={`chat-message chat-message--${message.role}`}>
       <div className="chat-message__content">
+        {imageUrl && (
+          <img
+            src={imageUrl}
+            alt="Uploaded"
+            className="chat-message__image"
+          />
+        )}
         <div className="chat-message__bubble">
           {message.content || (
             <span className="chat-message__typing">...</span>

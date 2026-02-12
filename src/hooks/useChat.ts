@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef } from "react";
-import type { ChatMessage } from "../types";
+import type { ChatMessage, ImageData } from "../types";
 import type { ExpressionName } from "./useAvatar";
 
 const LOADING_MESSAGES = [
@@ -66,11 +66,12 @@ export function useChat() {
   const abortRef = useRef<AbortController | null>(null);
 
   const sendMessage = useCallback(
-    async (content: string) => {
+    async (content: string, imageData?: ImageData) => {
       const userMessage: ChatMessage = {
         id: crypto.randomUUID(),
         role: "user",
         content,
+        imageData,
       };
 
       const assistantMessage: ChatMessage = {
@@ -91,6 +92,7 @@ export function useChat() {
         const apiMessages = [...messages, userMessage].map((m) => ({
           role: m.role,
           content: m.content,
+          ...(m.imageData ? { imageData: m.imageData } : {}),
         }));
 
         const response = await fetch("/api/chat", {
