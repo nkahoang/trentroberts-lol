@@ -8,6 +8,38 @@ export function Chat() {
   const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // TTS test state
+  const [ttsStatus, setTtsStatus] = useState<"idle" | "loading" | "playing" | "error">("idle");
+  const [ttsError, setTtsError] = useState<string>("");
+  const [ttsAudioUrl, setTtsAudioUrl] = useState<string>("");
+
+  const testTts = async () => {
+    setTtsStatus("loading");
+    setTtsError("");
+    setTtsAudioUrl("");
+
+    try {
+      const res = await fetch("/api/tts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: "G'day mate, this is a test of the voice system. How's it going?" }),
+      });
+
+      if (!res.ok) {
+        const errBody = await res.text();
+        throw new Error(`${res.status}: ${errBody.slice(0, 300)}`);
+      }
+
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      setTtsAudioUrl(url);
+      setTtsStatus("playing");
+    } catch (err) {
+      setTtsError((err as Error).message);
+      setTtsStatus("error");
+    }
+  };
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -32,6 +64,23 @@ export function Chat() {
           <ChatMessage key={msg.id} message={msg} />
         ))}
         <div ref={messagesEndRef} />
+      </div>
+      {/* TTS Test Panel */}
+      <div className="chat__tts-test">
+        <button
+          type="button"
+          className="chat__button chat__button--test"
+          onClick={testTts}
+          disabled={ttsStatus === "loading"}
+        >
+          {ttsStatus === "loading" ? "⏳ Testing TTS..." : "🔊 Test TTS"}
+        </button>
+        {ttsStatus === "playing" && ttsAudioUrl && (
+          <audio src={ttsAudioUrl} autoPlay controls className="chat__tts-test-audio" />
+        )}
+        {ttsStatus === "error" && (
+          <div className="chat__tts-test-error">{ttsError}</div>
+        )}
       </div>
       <form className="chat__input-form" onSubmit={handleSubmit}>
         <input
