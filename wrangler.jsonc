@@ -1,6 +1,12 @@
 {
+    "$schema": "node_modules/wrangler/config-schema.json",
     "name": "trentroberts-lol",
+    "main": "./worker/index.ts",
     "compatibility_date": "2026-02-11",
+    "compatibility_flags": ["nodejs_compat"],
+    "observability": {
+        "enabled": true
+    },
     "routes": [
         {
             "pattern": "trentroberts.lol",
@@ -8,6 +14,7 @@
         }
     ],
     "assets": {
-        "directory": "./dist"
+        "not_found_handling": "single-page-application",
+        "run_worker_first": ["/api/*"]
     }
 }

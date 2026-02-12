@@ -1,13 +1,18 @@
-import './App.css'
+import { Avatar } from "./components/Avatar";
+import { Chat } from "./components/Chat";
+import "./App.css";
 
 function App() {
   return (
-    <>
-      <div>
-        <img src="t.webp" alt="Trent Roberts" />
+    <div className="app">
+      <div className="app__avatar">
+        <Avatar />
       </div>
-    </>
-  )
+      <div className="app__chat">
+        <Chat />
+      </div>
+    </div>
+  );
 }
 
-export default App
+export default App;
