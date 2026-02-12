@@ -1,4 +1,5 @@
 .avatar-container {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -12,6 +13,39 @@
   border: none;
   background: transparent;
   border-radius: 12px;
+}
+
+/* Expression test controls */
+
+.avatar-test-controls {
+  position: absolute;
+  bottom: 0.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 380px;
+}
+
+.avatar-test-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid #555;
+  border-radius: 0.75rem;
+  color: #ccc;
+  font-size: 0.7rem;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  font-family: inherit;
+  text-transform: capitalize;
+  transition: all 0.15s;
+}
+
+.avatar-test-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: #b8a9d4;
+  color: white;
 }
 
 @media (max-width: 768px) {

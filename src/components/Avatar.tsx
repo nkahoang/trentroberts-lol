@@ -1,18 +1,33 @@
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
+import {
+  useAvatar,
+  EXPRESSIONS,
+  type ExpressionName,
+} from "../hooks/useAvatar";
 import "./Avatar.css";
 
-export function Avatar() {
-  const iframeRef = useRef<HTMLIFrameElement>(null);
+interface Props {
+  expression?: ExpressionName;
+  onAvatarReady?: () => void;
+  showTestControls?: boolean;
+}
 
+export function Avatar({ expression, onAvatarReady, showTestControls }: Props) {
+  const { iframeRef, isReady, setExpression } = useAvatar();
+
+  // Apply expression from parent (chat-driven)
   useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
-      if (event.data?.type === "avatar-ready") {
-        console.log("Avatar ready");
-      }
-    };
-    window.addEventListener("message", handleMessage);
-    return () => window.removeEventListener("message", handleMessage);
-  }, []);
+    if (isReady && expression) {
+      setExpression(expression);
+    }
+  }, [isReady, expression, setExpression]);
+
+  // Notify parent when ready
+  useEffect(() => {
+    if (isReady && onAvatarReady) {
+      onAvatarReady();
+    }
+  }, [isReady, onAvatarReady]);
 
   return (
     <div className="avatar-container">
@@ -24,6 +39,19 @@ export function Avatar() {
         allow="autoplay"
         sandbox="allow-scripts allow-same-origin"
       />
+      {showTestControls && isReady && (
+        <div className="avatar-test-controls">
+          {(Object.keys(EXPRESSIONS) as ExpressionName[]).map((name) => (
+            <button
+              key={name}
+              className="avatar-test-btn"
+              onClick={() => setExpression(name)}
+            >
+              {name}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

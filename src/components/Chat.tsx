@@ -1,44 +1,70 @@
-import { useState, useRef, useEffect, type FormEvent } from "react";
-import { useChat } from "../hooks/useChat";
+import { useState, useRef, useEffect, useMemo, type FormEvent } from "react";
 import { ChatMessage } from "./ChatMessage";
+import type { ChatMessage as ChatMessageType } from "../types";
 import "./Chat.css";
 
-export function Chat() {
-  const { messages, isStreaming, sendMessage, stopStreaming } = useChat();
+const GREETINGS = [
+  "G'day! Ask me anything.",
+  "Woweee, a visitor. What's on your mind?",
+  "Don't be a goose — say something.",
+  "Only the real ones start a conversation.",
+  "Yeah nah, go on then. Ask away.",
+  "Alright, I'm here. Make it good.",
+  "Duck pancakes aren't gonna order themselves. Chat?",
+  "Pull up a chair, mate.",
+  "I'd untuck my tshirt but it already is. What do you want?",
+  "Apparently it was Anthony Damiano. Anyway, what's up?",
+  "Welcome to the cosy corner. Fire away.",
+  "Right. Let's hear it.",
+];
+
+const ALL_SUGGESTIONS = [
+  "What should I get for lunch?",
+  "Who broke the build?",
+  "Should I tuck my shirt in?",
+  "What's Rocket Park like?",
+  "Roast my design portfolio",
+  "Tell me about Howatson+Company",
+  "What's your take on AI?",
+  "Give me fashion advice",
+  "What makes a good UX?",
+  "Tell me about your kids",
+  "What's living in Hawthorn like?",
+  "Rate my outfit idea",
+  "Who is Anthony Damiano?",
+  "What's the best flat white in Melbourne?",
+  "Give me a Midjourney prompt",
+  "What do you think of crypto?",
+  "How do I deal with spammers?",
+  "Describe your perfect weekend",
+  "What's wrong with modern design?",
+  "Convince me to move to Australia",
+];
+
+function pickRandom<T>(arr: T[], count: number): T[] {
+  const shuffled = [...arr].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, count);
+}
+
+interface Props {
+  messages: ChatMessageType[];
+  isStreaming: boolean;
+  sendMessage: (content: string) => void;
+  stopStreaming: () => void;
+}
+
+export function Chat({
+  messages,
+  isStreaming,
+  sendMessage,
+  stopStreaming,
+}: Props) {
   const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // TTS test state
-  const [ttsStatus, setTtsStatus] = useState<"idle" | "loading" | "playing" | "error">("idle");
-  const [ttsError, setTtsError] = useState<string>("");
-  const [ttsAudioUrl, setTtsAudioUrl] = useState<string>("");
-
-  const testTts = async () => {
-    setTtsStatus("loading");
-    setTtsError("");
-    setTtsAudioUrl("");
-
-    try {
-      const res = await fetch("/api/tts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: "G'day mate, this is a test of the voice system. How's it going?" }),
-      });
-
-      if (!res.ok) {
-        const errBody = await res.text();
-        throw new Error(`${res.status}: ${errBody.slice(0, 300)}`);
-      }
-
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      setTtsAudioUrl(url);
-      setTtsStatus("playing");
-    } catch (err) {
-      setTtsError((err as Error).message);
-      setTtsStatus("error");
-    }
-  };
+  // Pick once on mount — stable across re-renders
+  const greeting = useMemo(() => GREETINGS[Math.floor(Math.random() * GREETINGS.length)], []);
+  const suggestions = useMemo(() => pickRandom(ALL_SUGGESTIONS, 4), []);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -52,35 +78,34 @@ export function Chat() {
     sendMessage(trimmed);
   };
 
+  const handleSuggestion = (text: string) => {
+    if (isStreaming) return;
+    sendMessage(text);
+  };
+
   return (
     <div className="chat">
       <div className="chat__messages">
         {messages.length === 0 && (
           <div className="chat__empty">
-            <p>G'day! Ask me anything.</p>
+            <p className="chat__greeting">{greeting}</p>
+            <div className="chat__suggestions">
+              {suggestions.map((s) => (
+                <button
+                  key={s}
+                  className="chat__suggestion"
+                  onClick={() => handleSuggestion(s)}
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
           </div>
         )}
         {messages.map((msg) => (
           <ChatMessage key={msg.id} message={msg} />
         ))}
         <div ref={messagesEndRef} />
-      </div>
-      {/* TTS Test Panel */}
-      <div className="chat__tts-test">
-        <button
-          type="button"
-          className="chat__button chat__button--test"
-          onClick={testTts}
-          disabled={ttsStatus === "loading"}
-        >
-          {ttsStatus === "loading" ? "⏳ Testing TTS..." : "🔊 Test TTS"}
-        </button>
-        {ttsStatus === "playing" && ttsAudioUrl && (
-          <audio src={ttsAudioUrl} autoPlay controls className="chat__tts-test-audio" />
-        )}
-        {ttsStatus === "error" && (
-          <div className="chat__tts-test-error">{ttsError}</div>
-        )}
       </div>
       <form className="chat__input-form" onSubmit={handleSubmit}>
         <input

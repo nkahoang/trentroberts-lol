@@ -4,4 +4,5 @@ export interface ChatMessage {
   content: string;
   audioUrl?: string;
   audioStatus?: "generating" | "ready" | "error";
+  loadingMessage?: string;
 }
