@@ -2,7 +2,7 @@
   "15": {
     "inputs": {
       "audio": "New Recording 13.m4a",
-      "audioUI": "/api/view?filename=New%20Recording%2013.m4a&type=input&subfolder=&rand=0.15268768103968122"
+      "audioUI": "/api/view?filename=New%20Recording%2013.m4a&type=input&subfolder=&rand=0.8618662329553298"
     },
     "class_type": "LoadAudio",
     "_meta": {
@@ -11,7 +11,7 @@
   },
   "16": {
     "inputs": {
-      "audioUI": "/api/view?filename=ComfyUI_temp_ffxwn_00001_.flac&type=temp&subfolder=&rand=0.3628538785702744",
+      "audioUI": "/api/view?filename=ComfyUI_temp_mjplc_00001_.flac&type=temp&subfolder=&rand=0.6817841157346308",
       "audio": [
         "44",
         0
@@ -24,19 +24,19 @@
   },
   "44": {
     "inputs": {
-      "text": "TEXT GOES HERE",
+      "text": "Can we run this a bit faster?",
       "model": "VibeVoice7b-low-vram",
       "attention_type": "auto",
-      "quantize_llm": "full precision",
+      "quantize_llm": "4bit",
       "free_memory_after_generate": false,
-      "diffusion_steps": 18,
+      "diffusion_steps": 20,
       "seed": 42,
       "cfg_scale": 1.3,
       "use_sampling": false,
       "temperature": 0.95,
       "top_p": 0.95,
       "max_words_per_chunk": 350,
-      "voice_speed_factor": 1,
+      "voice_speed_factor": 1.05,
       "voice_to_clone": [
         "15",
         0
